@@ -1,18 +1,10 @@
 kind: pipeline
+type: docker
 name: default
-workspace:
-  base: /go
-  path: src/goTodoAPI
+
 steps:
-  - name: build
-    image: golang
-    commands:
-      - go env
-      - pwd
-      - go get
-  - name: run
-    image: golang
-    commands:
-      - go build -o output
-      - chmod +x output
-      - ./output
+- name: build
+  image: golang
+  commands:
+  - go build
+  - go test
