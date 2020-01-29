@@ -1,24 +1,26 @@
 kind: pipeline
-type: docker
 name: default
+workspace:
+  base: /go
+  path: src/RestArea
+steps:
+  - name: test
+      image: golang
+      commands:
+        - go get
+        - go test
 
-- name: test
-  image: golang
-  commands:
-    - go get
-    - go test
+  - name: build
+    image: golang
+    commands:
+      - go get
+      - go build -o output
+      - chmod +x output
 
-- name: build
-  image: golang
-  commands:
-    - go get
-    - go build -o output
-    - chmod +x output
-
-- name: run
-  image: golang
-  commands:
-    - go get
-    - go build -o output
-    - chmod +x output
-    - ./output
+  - name: run
+    image: golang
+    commands:
+      - go get
+      - go build -o output
+      - chmod +x output
+      - ./output
