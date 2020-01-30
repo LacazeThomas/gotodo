@@ -1,0 +1,20 @@
+name: Docker Image CI
+
+on: [push]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag gotodoapi:latest
+    - name: Docker login
+      run: docker login -u thomaslacaze -p $DOCKER_TOKEN
+      env:
+        GITHUB_TOKEN: ${{secrets.DOCKER_TOKEN}}
+    - name: Publish to Docker hub
+      run: docker push "hub.docker.com/repository/docker/thomaslacaze/gotodoapi:latest"
