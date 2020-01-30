@@ -8,9 +8,11 @@ import (
 
 func main() {
 	http.HandleFunc("/", HelloServer)
-	http.ListenAndServe(":80", nil)
+	http.ListenAndServe(":8000", nil)
 }
 
 func HelloServer(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello world", time.Now())
+	t := time.Now()
+	current := t.Format("2006-01-02 15:04:05")
+	fmt.Fprintf(w, "Hello world "+current)
 }
