@@ -15,4 +15,4 @@ jobs:
     - name: Docker login
       run: echo '${{ secrets.DOCKER_TOKEN }}' | docker login --username thomaslacaze --password-stdin
     - name: Publish to Docker hub
-      run: docker push "hub.docker.com/repository/docker/thomaslacaze/gotodoapi:latest"
+      run: docker push thomaslacaze/gotodoapi
