@@ -1,11 +1,9 @@
 package app
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
@@ -19,7 +17,7 @@ import (
 type App struct {
 	Router *mux.Router
 	DB     *gorm.DB
-	Base *mux.Router
+	Base   *mux.Router
 }
 
 // Initialize initializes the app with predefined configuration
@@ -40,35 +38,33 @@ func (a *App) Initialize(config config.DB) {
 	a.DB = model.DBMigrate(db)
 	a.Base = mux.NewRouter()
 
-
-	a.Base.HandleFunc("/login", LoginHandler())
-
-	a.Router = a.Base.PathPrefix("/api").Subrouter().StrictSlash(true)
-	a.Router.Use(AuthenticationMiddleware)
-
-	a.Router.Use(AuthenticationMiddleware)
+	a.Router = a.Base.PathPrefix("/api/projects").Subrouter().StrictSlash(true)
 	a.setRouters()
 }
 
 // setRouters sets the all required routers
 func (a *App) setRouters() {
+	// Routing for handling the login
+	a.PostLogin("/api/user/new", a.handleRequest(handler.CreateAccount))
+	a.PostLogin("/api/user/login", a.handleRequest(handler.Authenticate))
+
 	// Routing for handling the projects
-	a.Get("/projects", a.handleRequest(handler.GetAllProjects))
-	a.Post("/projects", a.handleRequest(handler.CreateProject))
-	a.Get("/projects/{title}", a.handleRequest(handler.GetProject))
-	a.Put("/projects/{title}", a.handleRequest(handler.UpdateProject))
-	a.Delete("/projects/{title}", a.handleRequest(handler.DeleteProject))
-	a.Put("/projects/{title}/archive", a.handleRequest(handler.ArchiveProject))
-	a.Delete("/projects/{title}/archive", a.handleRequest(handler.RestoreProject))
+	a.Get("", a.handleRequest(handler.GetAllProjects))
+	a.Post("", a.handleRequest(handler.CreateProject))
+	a.Get("/{title}", a.handleRequest(handler.GetProject))
+	a.Put("/{title}", a.handleRequest(handler.UpdateProject))
+	a.Delete("/{title}", a.handleRequest(handler.DeleteProject))
+	a.Put("/{title}/archive", a.handleRequest(handler.ArchiveProject))
+	a.Delete("/{title}/archive", a.handleRequest(handler.RestoreProject))
 
 	// Routing for handling the tasks
-	a.Get("/projects/{title}/tasks", a.handleRequest(handler.GetAllTasks))
-	a.Post("/projects/{title}/tasks", a.handleRequest(handler.CreateTask))
-	a.Get("/projects/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.GetTask))
-	a.Put("/projects/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.UpdateTask))
-	a.Delete("/projects/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.DeleteTask))
-	a.Put("/projects/{title}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.CompleteTask))
-	a.Delete("/projects/{title}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.UndoTask))
+	a.Get("/{title}/tasks", a.handleRequest(handler.GetAllTasks))
+	a.Post("/{title}/tasks", a.handleRequest(handler.CreateTask))
+	a.Get("/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.GetTask))
+	a.Put("/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.UpdateTask))
+	a.Delete("/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.DeleteTask))
+	a.Put("/{title}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.CompleteTask))
+	a.Delete("/{title}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.UndoTask))
 }
 
 // Get wraps the router for GET method
@@ -79,6 +75,11 @@ func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
 // Post wraps the router for POST method
 func (a *App) Post(path string, f func(w http.ResponseWriter, r *http.Request)) {
 	a.Router.HandleFunc(path, f).Methods("POST")
+}
+
+// PostLogin wraps the router for POST method
+func (a *App) PostLogin(path string, f func(w http.ResponseWriter, r *http.Request)) {
+	a.Base.HandleFunc(path, f).Methods("POST")
 }
 
 // Put wraps the router for PUT method
@@ -104,6 +105,7 @@ func (a *App) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
 	}
 }
 
+/*
 func CreateToken() (string, error) {
 	signingKey := []byte("keymaker")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -168,3 +170,4 @@ func LoginHandler() http.HandlerFunc {
 
 	return http.HandlerFunc(fn)
 }
+*/

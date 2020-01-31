@@ -8,6 +8,8 @@ import (
 	"github.com/lacazethomas/goTodo/config"
 )
 
+
+//TODO: Better file organization, add jwt to api request, add user id to each request
 func main() {
 
 	log.SetFormatter(&log.JSONFormatter{})
