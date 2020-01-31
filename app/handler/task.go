@@ -11,6 +11,7 @@ import (
 	"github.com/lacazethomas/goTodo/app/model"
 )
 
+// GetAllTasks from user 
 func GetAllTasks(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -27,7 +28,7 @@ func GetAllTasks(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	respondJSON(w, http.StatusOK, tasks)
 }
-
+// CreateTask for an user
 func CreateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -53,6 +54,7 @@ func CreateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusCreated, task)
 }
 
+// GetTask according userID
 func GetTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -99,6 +101,7 @@ func UpdateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, task)
 }
 
+// DeleteTask from param
 func DeleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -121,6 +124,7 @@ func DeleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusNoContent, nil)
 }
 
+// CompleteTask from param
 func CompleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -144,6 +148,7 @@ func CompleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, task)
 }
 
+// UndoTask uncheck task
 func UndoTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 

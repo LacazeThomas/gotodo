@@ -39,11 +39,13 @@ func (a *App) Initialize(config config.DB) {
 	a.Router = mux.NewRouter()
 
 	a.Router.Use(handler.JwtAuthentication)
+	
 	a.setRouters()
 }
 
 // setRouters sets the all required routers
 func (a *App) setRouters() {
+	
 	// Routing for handling the login
 	a.Post("/user/new", a.handleRequest(handler.CreateAccount))
 	a.Post("/user/login", a.handleRequest(handler.Authenticate))

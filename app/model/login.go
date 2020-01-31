@@ -106,15 +106,3 @@ func Login(email, password string, db *gorm.DB) (*Account, error) {
 	account.Token = tokenString //Store the token in the response
 	return account, nil
 }
-
-func GetUser(u uint, db *gorm.DB) *Account {
-
-	acc := &Account{}
-	db.Table("accounts").Where("id = ?", u).First(acc)
-	if acc.Email == "" { //User not found!
-		return nil
-	}
-
-	acc.Password = ""
-	return acc
-}
