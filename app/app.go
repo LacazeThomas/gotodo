@@ -17,7 +17,7 @@ import (
 type App struct {
 	Router *mux.Router
 	DB     *gorm.DB
-	Base   *mux.Router
+	Token     string
 }
 
 // Initialize initializes the app with predefined configuration
@@ -36,35 +36,35 @@ func (a *App) Initialize(config config.DB) {
 	}
 
 	a.DB = model.DBMigrate(db)
-	a.Base = mux.NewRouter()
+	a.Router = mux.NewRouter()
 
-	a.Router = a.Base.PathPrefix("/api/projects").Subrouter().StrictSlash(true)
+	a.Router.Use(handler.JwtAuthentication)
 	a.setRouters()
 }
 
 // setRouters sets the all required routers
 func (a *App) setRouters() {
 	// Routing for handling the login
-	a.PostLogin("/api/user/new", a.handleRequest(handler.CreateAccount))
-	a.PostLogin("/api/user/login", a.handleRequest(handler.Authenticate))
+	a.Post("/api/user/new", a.handleRequest(handler.CreateAccount))
+	a.Post("/api/user/login", a.handleRequest(handler.Authenticate))
 
 	// Routing for handling the projects
-	a.Get("", a.handleRequest(handler.GetAllProjects))
-	a.Post("", a.handleRequest(handler.CreateProject))
-	a.Get("/{title}", a.handleRequest(handler.GetProject))
-	a.Put("/{title}", a.handleRequest(handler.UpdateProject))
-	a.Delete("/{title}", a.handleRequest(handler.DeleteProject))
-	a.Put("/{title}/archive", a.handleRequest(handler.ArchiveProject))
-	a.Delete("/{title}/archive", a.handleRequest(handler.RestoreProject))
+	a.Get("/projects", a.handleRequest(handler.GetAllProjects))
+	a.Post("/projects", a.handleRequest(handler.CreateProject))
+	a.Get("/projects/{title}", a.handleRequest(handler.GetProject))
+	a.Put("/projects/{title}", a.handleRequest(handler.UpdateProject))
+	a.Delete("/projects/{title}", a.handleRequest(handler.DeleteProject))
+	a.Put("/projects/{title}/archive", a.handleRequest(handler.ArchiveProject))
+	a.Delete("/projects/{title}/archive", a.handleRequest(handler.RestoreProject))
 
 	// Routing for handling the tasks
-	a.Get("/{title}/tasks", a.handleRequest(handler.GetAllTasks))
-	a.Post("/{title}/tasks", a.handleRequest(handler.CreateTask))
-	a.Get("/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.GetTask))
-	a.Put("/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.UpdateTask))
-	a.Delete("/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.DeleteTask))
-	a.Put("/{title}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.CompleteTask))
-	a.Delete("/{title}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.UndoTask))
+	a.Get("/projects/{title}/tasks", a.handleRequest(handler.GetAllTasks))
+	a.Post("/projects/{title}/tasks", a.handleRequest(handler.CreateTask))
+	a.Get("/projects/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.GetTask))
+	a.Put("/projects/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.UpdateTask))
+	a.Delete("/projects/{title}/tasks/{id:[0-9]+}", a.handleRequest(handler.DeleteTask))
+	a.Put("/projects/{title}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.CompleteTask))
+	a.Delete("/projects/{title}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.UndoTask))
 }
 
 // Get wraps the router for GET method
@@ -75,11 +75,6 @@ func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
 // Post wraps the router for POST method
 func (a *App) Post(path string, f func(w http.ResponseWriter, r *http.Request)) {
 	a.Router.HandleFunc(path, f).Methods("POST")
-}
-
-// PostLogin wraps the router for POST method
-func (a *App) PostLogin(path string, f func(w http.ResponseWriter, r *http.Request)) {
-	a.Base.HandleFunc(path, f).Methods("POST")
 }
 
 // Put wraps the router for PUT method
@@ -94,7 +89,7 @@ func (a *App) Delete(path string, f func(w http.ResponseWriter, r *http.Request)
 
 // Run the app on it's router
 func (a *App) Run(host string) {
-	log.Fatal(http.ListenAndServe(host, a.Base))
+	log.Fatal(http.ListenAndServe(host, a.Router))
 }
 
 type RequestHandlerFunction func(db *gorm.DB, w http.ResponseWriter, r *http.Request)
@@ -104,70 +99,3 @@ func (a *App) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
 		handler(a.DB, w, r)
 	}
 }
-
-/*
-func CreateToken() (string, error) {
-	signingKey := []byte("keymaker")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"name": "hello",
-		"role": "redpill",
-	})
-	tokenString, err := token.SignedString(signingKey)
-
-	return tokenString, err
-}
-
-func ValidateToken(tokenString string) (jwt.Claims, error) {
-	signingKey := []byte("keymaker")
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return signingKey, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return token.Claims, err
-}
-
-func AuthenticationMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		if token, ok := r.Header["Authorization"]; !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, "Authorization Header Missing")
-		} else {
-			if len(token) < 1 {
-				w.WriteHeader(http.StatusBadRequest)
-				fmt.Fprintf(w, "Authorization Token Not Available")
-			} else {
-				_, err := ValidateToken(token[0])
-				if err != nil {
-					w.WriteHeader(http.StatusBadRequest)
-					fmt.Fprintf(w, "Authorization Token Not Valid")
-				} else {
-					// Call the next handler, which can be another middleware in the chain, or the final handler.
-					next.ServeHTTP(w, r)
-				}
-			}
-		}
-	})
-}
-
-func LoginHandler() http.HandlerFunc {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		if token, err := CreateToken(); err != nil {
-			fmt.Fprintf(w, "Error in Token Creation")
-		} else {
-			testmap := make(map[string]string)
-			testmap["token"] = token
-			b, err := json.Marshal(testmap)
-			if err != nil {
-				fmt.Fprintf(w, "Error in JSON Marshalling")
-			}
-
-			fmt.Fprintf(w, string(b))
-		}
-	}
-
-	return http.HandlerFunc(fn)
-}
-*/

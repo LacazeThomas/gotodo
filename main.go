@@ -9,11 +9,10 @@ import (
 )
 
 
-//TODO: Better file organization, add jwt to api request, add user id to each request
+//TODO: Better file organization, add user id to each request
 func main() {
 
 	log.SetFormatter(&log.JSONFormatter{})
-
 	config := config.DB{}
 	err := env.Parse(&config)
 	if err != nil {

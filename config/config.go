@@ -1,5 +1,9 @@
 package config
 
+import "os"
+
+import "fmt"
+
 type DB struct {
 	Dialect  string `env:"Dialect" envDefault:"mysql"`
 	Host     string `env:"Host"`
@@ -8,4 +12,9 @@ type DB struct {
 	Password string `env:"Password"`
 	Name     string `env:"Name"`
 	Charset  string `env:"Charset" envDefault:"utf8"`
+}
+
+func GetTokenString() string {
+	fmt.Print(os.Getenv("TokenString"))
+	return os.Getenv("TokenString")
 }

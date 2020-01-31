@@ -2,12 +2,13 @@ package model
 
 import (
 	"errors"
-	"os"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/lacazethomas/goTodo/config"
 )
 
 /*
@@ -72,7 +73,7 @@ func (account *Account) Create(db *gorm.DB) (*Account, error) {
 	//Create new JWT token for the newly registered account
 	tk := &Token{UserId: account.ID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
+	tokenString, _ := token.SignedString([]byte(config.GetTokenString()))
 	account.Token = tokenString
 
 	account.Password = "" //delete password
@@ -101,7 +102,7 @@ func Login(email, password string, db *gorm.DB) (*Account, error) {
 	//Create JWT token
 	tk := &Token{UserId: account.ID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
+	tokenString, _ := token.SignedString([]byte(config.GetTokenString()))
 	account.Token = tokenString //Store the token in the response
 
 	return account, nil
