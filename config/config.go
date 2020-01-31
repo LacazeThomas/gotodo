@@ -2,8 +2,6 @@ package config
 
 import "os"
 
-import "fmt"
-
 type DB struct {
 	Dialect  string `env:"Dialect" envDefault:"mysql"`
 	Host     string `env:"Host"`
@@ -15,6 +13,5 @@ type DB struct {
 }
 
 func GetTokenString() string {
-	fmt.Print(os.Getenv("TokenString"))
 	return os.Getenv("TokenString")
 }

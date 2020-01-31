@@ -104,7 +104,6 @@ func Login(email, password string, db *gorm.DB) (*Account, error) {
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(config.GetTokenString()))
 	account.Token = tokenString //Store the token in the response
-
 	return account, nil
 }
 

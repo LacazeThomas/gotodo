@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/lacazethomas/goTodo/app/model"
 	"github.com/lacazethomas/goTodo/config"
@@ -29,7 +28,6 @@ func JwtAuthentication(next http.Handler) http.Handler {
 			}
 		}
 		tokenHeader := r.Header.Get("Authorization") //Grab the token from the header
-		log.Print(tokenHeader)
 
 		if tokenHeader == "" { //Token is missing, returns with error code 403 Unauthorized
 			respondError(w, http.StatusForbidden, "Missing auth token")
@@ -61,7 +59,6 @@ func JwtAuthentication(next http.Handler) http.Handler {
 
 		//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
 		fmt.Sprintf("User %", tk.UserId) //Useful for monitoring
-		log.Println("Request from",tk.UserId)
 		ctx := context.WithValue(r.Context(), "user", tk.UserId)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r) //proceed in the middleware chain!

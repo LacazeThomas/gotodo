@@ -45,8 +45,8 @@ func (a *App) Initialize(config config.DB) {
 // setRouters sets the all required routers
 func (a *App) setRouters() {
 	// Routing for handling the login
-	a.Post("/api/user/new", a.handleRequest(handler.CreateAccount))
-	a.Post("/api/user/login", a.handleRequest(handler.Authenticate))
+	a.Post("/user/new", a.handleRequest(handler.CreateAccount))
+	a.Post("/user/login", a.handleRequest(handler.Authenticate))
 
 	// Routing for handling the projects
 	a.Get("/projects", a.handleRequest(handler.GetAllProjects))

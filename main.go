@@ -18,7 +18,6 @@ func main() {
 	if err != nil {
 		log.Println("Can not get env variable")
 	}
-	log.Printf("%+v\n", config)
 	app := &app.App{}
 	app.Initialize(config)
 	app.Run(":8000")

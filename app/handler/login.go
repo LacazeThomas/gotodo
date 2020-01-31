@@ -44,6 +44,5 @@ func Authenticate(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	type login struct {
 		Token string `json:"token"`
 	}
-
 	respondJSON(w, http.StatusOK, login{resp.Token})
 }
