@@ -2,10 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"strconv"
+	"fmt"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -14,9 +13,26 @@ import (
 )
 
 func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+
+	project := &model.Project{}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&project); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer r.Body.Close()
+	
+	status := 0
+	if(project.Archived == false){
+		status = 0
+	}else{
+		status = 1
+	}
+
 	projects := []model.Project{}
 	idUser := r.Context().Value("user").(uint)
-	db.Where("user_id = ?", idUser).Find(&projects)
+	db.Where("user_id = ? AND archived = ?", idUser, status).Find(&projects)
 	respondJSON(w, http.StatusOK, projects)
 
 }
@@ -129,7 +145,7 @@ func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Requ
 	idUser := r.Context().Value("user").(uint)
 	i, err := strconv.ParseUint(id, 10, 64)
 	if err == nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 	if err := db.Where("user_id = ?", idUser).First(&project, model.Project{ID: i}).Error; err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
