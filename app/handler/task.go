@@ -15,8 +15,8 @@ import (
 func GetAllTasks(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	projectTitle := vars["title"]
-	project := getProjectOr404(db, projectTitle, w, r)
+	projectID := vars["id"]
+	project := getProjectOr404(db, projectID, w, r)
 	if project == nil {
 		return
 	}
@@ -32,8 +32,8 @@ func GetAllTasks(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func CreateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	projectTitle := vars["title"]
-	project := getProjectOr404(db, projectTitle, w, r)
+	projectID := vars["id"]
+	project := getProjectOr404(db, projectID, w, r)
 	if project == nil {
 		return
 	}
@@ -58,8 +58,8 @@ func CreateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func GetTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	projectTitle := vars["title"]
-	project := getProjectOr404(db, projectTitle, w, r)
+	projectId := vars["title"]
+	project := getProjectOr404(db, projectId, w, r)
 	if project == nil {
 		return
 	}
@@ -75,8 +75,8 @@ func GetTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func UpdateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	projectTitle := vars["title"]
-	project := getProjectOr404(db, projectTitle, w, r)
+	projectID := vars["id"]
+	project := getProjectOr404(db, projectID, w, r)
 	if project == nil {
 		return
 	}
@@ -105,8 +105,8 @@ func UpdateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func DeleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	projectTitle := vars["title"]
-	project := getProjectOr404(db, projectTitle, w, r)
+	projectID := vars["id"]
+	project := getProjectOr404(db, projectID, w, r)
 	if project == nil {
 		return
 	}
@@ -128,8 +128,8 @@ func DeleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func CompleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	projectTitle := vars["title"]
-	project := getProjectOr404(db, projectTitle, w, r)
+	projectID := vars["id"]
+	project := getProjectOr404(db, projectID, w, r)
 	if project == nil {
 		return
 	}
@@ -152,8 +152,8 @@ func CompleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func UndoTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	projectTitle := vars["title"]
-	project := getProjectOr404(db, projectTitle, w, r)
+	projectID := vars["id"]
+	project := getProjectOr404(db, projectID, w, r)
 	if project == nil {
 		return
 	}

@@ -2,7 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -20,7 +22,6 @@ func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	project := model.Project{}
-
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&project); err != nil {
@@ -40,8 +41,8 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func GetProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	title := vars["title"]
-	project := getProjectOr404(db, title, w, r)
+	id := vars["id"]
+	project := getProjectOr404(db, id, w, r)
 	if project == nil {
 		return
 	}
@@ -51,8 +52,8 @@ func GetProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func UpdateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	title := vars["title"]
-	project := getProjectOr404(db, title, w, r)
+	id := vars["id"]
+	project := getProjectOr404(db, id, w, r)
 	if project == nil {
 		return
 	}
@@ -74,8 +75,8 @@ func UpdateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func DeleteProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	title := vars["title"]
-	project := getProjectOr404(db, title, w, r)
+	id := vars["id"]
+	project := getProjectOr404(db, id, w, r)
 	if project == nil {
 		return
 	}
@@ -89,8 +90,8 @@ func DeleteProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func ArchiveProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	title := vars["title"]
-	project := getProjectOr404(db, title, w, r)
+	id := vars["id"]
+	project := getProjectOr404(db, id, w, r)
 	if project == nil {
 		return
 	}
@@ -105,8 +106,8 @@ func ArchiveProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func RestoreProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	title := vars["title"]
-	project := getProjectOr404(db, title, w, r)
+	id := vars["id"]
+	project := getProjectOr404(db, id, w, r)
 	if project == nil {
 		return
 	}
@@ -119,10 +120,14 @@ func RestoreProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 // getProjectOr404 gets a project instance if exists, or respond the 404 error otherwise
-func getProjectOr404(db *gorm.DB, title string, w http.ResponseWriter, r *http.Request) *model.Project {
+func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Request) *model.Project {
 	project := model.Project{}
 	idUser := r.Context().Value("user").(uint)
-	if err := db.Where("user_id = ?", idUser).First(&project, model.Project{Title: title}).Error; err != nil {
+	i, err := strconv.ParseUint(id, 10, 16)
+	if err == nil {
+		log.Println(err)
+	}
+	if err := db.Where("user_id = ?", idUser).First(&project, model.Project{ID: i}).Error; err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil
 	}
