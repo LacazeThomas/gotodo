@@ -8,8 +8,10 @@ import (
 )
 
 type Project struct {
-	gorm.Model
-	ID       uint64 `json:"ID"`
+	ID        uint64 `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
 	Title    string `json:"title"`
 	Archived bool   `json:"archived"`
 	Tasks    []Task `gorm:"ForeignKey:ProjectID" json:"tasks"`

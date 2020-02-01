@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,7 +22,7 @@ func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	project := model.Project{}
+	project := &model.Project{}
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&project); err != nil {
@@ -31,10 +32,13 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	project.UserID = r.Context().Value("user").(uint)
-	if err := db.Save(&project).Error; err != nil {
+
+	err := db.Create(project).Error
+	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	fmt.Println(project.ID)
 	respondJSON(w, http.StatusCreated, project)
 }
 
