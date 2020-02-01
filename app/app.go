@@ -51,13 +51,13 @@ func (a *App) setRouters() {
 	a.Post("/user/login", a.handleRequest(handler.Authenticate))
 
 	// Routing for handling the projects
-	a.Get("/projects", a.handleRequest(handler.GetAllProjects))
-	a.Post("/projects", a.handleRequest(handler.CreateProject))
-	a.Get("/projects/{id:[0-9]+}", a.handleRequest(handler.GetProject))
-	a.Put("/projects/{id:[0-9]+}", a.handleRequest(handler.UpdateProject))
-	a.Delete("/projects/{id:[0-9]+}", a.handleRequest(handler.DeleteProject))
-	a.Put("/projects/{id:[0-9]+}/archive", a.handleRequest(handler.ArchiveProject))
-	a.Delete("/projects/{id:[0-9]+}/archive", a.handleRequest(handler.RestoreProject))
+	a.Get("/projects/{status:[0-1]}", a.handleRequest(handler.GetAllProjects))
+	a.Post("/project", a.handleRequest(handler.CreateProject))
+	a.Get("/project/{id:[0-9]+}", a.handleRequest(handler.GetProject))
+	a.Put("/project/{id:[0-9]+}", a.handleRequest(handler.UpdateProject))
+	a.Delete("/project/{id:[0-9]+}", a.handleRequest(handler.DeleteProject))
+	a.Put("/project/{id:[0-9]+}/archive", a.handleRequest(handler.ArchiveProject))
+	a.Delete("/project/{id:[0-9]+}/archive", a.handleRequest(handler.RestoreProject))
 
 	// Routing for handling the tasks
 	a.Get("/projects/{id:[0-9]+}/tasks", a.handleRequest(handler.GetAllTasks))

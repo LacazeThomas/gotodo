@@ -14,21 +14,10 @@ import (
 
 func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
-	project := &model.Project{}
+	vars := mux.Vars(r)
 
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&project); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	defer r.Body.Close()
-	
-	status := 0
-	if(project.Archived == false){
-		status = 0
-	}else{
-		status = 1
-	}
+	status := vars["status"]
+
 	projects := []model.Project{}
 	idUser := r.Context().Value("user").(uint)
 	db.Where("user_id = ? AND archived = ?", idUser, status).Find(&projects)
