@@ -47,7 +47,7 @@ func (a *App) Initialize(config config.DB) {
 func (a *App) setRouters() {
 	
 	// Routing for handling the login
-	a.Post("/user/new", a.handleRequest(handler.CreateAccount))
+	a.Post("/user/register", a.handleRequest(handler.CreateAccount))
 	a.Post("/user/login", a.handleRequest(handler.Authenticate))
 
 	// Routing for handling the projects
