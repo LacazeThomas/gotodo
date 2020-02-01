@@ -29,7 +29,6 @@ func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}else{
 		status = 1
 	}
-
 	projects := []model.Project{}
 	idUser := r.Context().Value("user").(uint)
 	db.Where("user_id = ? AND archived = ?", idUser, status).Find(&projects)
