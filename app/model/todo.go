@@ -9,11 +9,11 @@ import (
 
 type Project struct {
 	gorm.Model
-	ID		uint64 `json:"ID"`
+	ID       uint64 `json:"ID"`
 	Title    string `json:"title"`
 	Archived bool   `json:"archived"`
 	Tasks    []Task `gorm:"ForeignKey:ProjectID" json:"tasks"`
-	UserID   uint	
+	UserID   uint
 }
 
 func (p *Project) Archive() {
@@ -30,7 +30,7 @@ type Task struct {
 	Priority  string     `gorm:"type:ENUM('0', '1', '2', '3');default:'0'" json:"priority"`
 	Deadline  *time.Time `gorm:"default:null" json:"deadline"`
 	Done      bool       `json:"done"`
-	ProjectID uint64       `json:"project_id"`
+	ProjectID uint64     `json:"project_id"`
 }
 
 func (t *Task) Complete() {

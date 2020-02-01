@@ -123,7 +123,7 @@ func RestoreProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Request) *model.Project {
 	project := model.Project{}
 	idUser := r.Context().Value("user").(uint)
-	i, err := strconv.ParseUint(id, 10, 16)
+	i, err := strconv.ParseUint(id, 10, 64)
 	if err == nil {
 		log.Println(err)
 	}
@@ -131,5 +131,6 @@ func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Requ
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil
 	}
+	project.ID = i
 	return &project
 }
