@@ -36,7 +36,7 @@ func (account *Account) Validate(db *gorm.DB) error {
 	}
 
 	if len(account.Password) < 6 {
-		return errors.New("Email address is required")
+		return errors.New("Password to short 6 characteres min")
 	}
 
 	//Email must be unique
