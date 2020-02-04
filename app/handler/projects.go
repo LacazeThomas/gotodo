@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -37,7 +36,6 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	project.UserID = r.Context().Value("user").(uuid.UUID)
-
 
 	uuid, err := uuid.NewV4()
 	if err != nil {
@@ -151,6 +149,6 @@ func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Requ
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil
 	}
-	
+
 	return &project
 }
