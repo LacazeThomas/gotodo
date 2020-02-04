@@ -49,7 +49,7 @@ func (a *App) setRouters() {
 	a.Get("/project/{id}", a.handleRequest(handler.GetProject))
 	a.Put("/project/{id}", a.handleRequest(handler.UpdateProject))
 	a.Delete("/project/{id}", a.handleRequest(handler.DeleteProject))
-	a.Put("/project/{id/archive", a.handleRequest(handler.ArchiveProject))
+	a.Put("/project/{id}/archive", a.handleRequest(handler.ArchiveProject))
 	a.Delete("/project/{id}/archive", a.handleRequest(handler.RestoreProject))
  
 	// Routing for handling the tasks

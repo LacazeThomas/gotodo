@@ -51,7 +51,6 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	fmt.Println(project.ID)
 	respondJSON(w, http.StatusCreated, project)
 }
 
@@ -145,7 +144,6 @@ func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Requ
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return nil
 	}
-	fmt.Print(uniq)
 
 	idUser := r.Context().Value("user").(uuid.UUID)
 	project.ID = uniq
