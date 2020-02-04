@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -22,15 +21,9 @@ type App struct {
 
 // Initialize initializes the app with predefined configuration
 func (a *App) Initialize(config config.DB) {
-	dbURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True",
-		config.Username,
-		config.Password,
-		config.Host,
-		config.Port,
-		config.Name,
-		config.Charset)
 
-	db, err := gorm.Open(config.Dialect, dbURI)
+	db, err := gorm.Open("postgres", "host='192.168.1.35' port=5432 user=nextcloud dbname='gotodo-dev' password='YOUR_SECRET_PASSWORD' sslmode=disable")
+	/* db, err := gorm.Open(config.Dialect, dbURI) */
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -53,20 +46,20 @@ func (a *App) setRouters() {
 	// Routing for handling the projects
 	a.Get("/projects/{status:[0-1]}", a.handleRequest(handler.GetAllProjects))
 	a.Post("/project", a.handleRequest(handler.CreateProject))
-	a.Get("/project/{id:[0-9]+}", a.handleRequest(handler.GetProject))
-	a.Put("/project/{id:[0-9]+}", a.handleRequest(handler.UpdateProject))
-	a.Delete("/project/{id:[0-9]+}", a.handleRequest(handler.DeleteProject))
-	a.Put("/project/{id:[0-9]+}/archive", a.handleRequest(handler.ArchiveProject))
-	a.Delete("/project/{id:[0-9]+}/archive", a.handleRequest(handler.RestoreProject))
-
+	a.Get("/project/{id}", a.handleRequest(handler.GetProject))
+	a.Put("/project/{id}", a.handleRequest(handler.UpdateProject))
+	a.Delete("/project/{id}", a.handleRequest(handler.DeleteProject))
+	a.Put("/project/{id/archive", a.handleRequest(handler.ArchiveProject))
+	a.Delete("/project/{id}/archive", a.handleRequest(handler.RestoreProject))
+ 
 	// Routing for handling the tasks
-	a.Get("/projects/{id:[0-9]+}/tasks", a.handleRequest(handler.GetAllTasks))
-	a.Post("/projects/{id:[0-9]+}/tasks", a.handleRequest(handler.CreateTask))
-	a.Get("/projects/{id:[0-9]+}/tasks/{id:[0-9]+}", a.handleRequest(handler.GetTask))
-	a.Put("/projects/{id:[0-9]+}/tasks/{id:[0-9]+}", a.handleRequest(handler.UpdateTask))
-	a.Delete("/projects/{id:[0-9]+}/tasks/{id:[0-9]+}", a.handleRequest(handler.DeleteTask))
-	a.Put("/projects/{id:[0-9]+}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.CompleteTask))
-	a.Delete("/projects/{id:[0-9]+}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.UndoTask))
+	a.Get("/projects/{id}/tasks", a.handleRequest(handler.GetAllTasks))
+	a.Post("/projects/{id}/tasks", a.handleRequest(handler.CreateTask))
+	a.Get("/projects/{id}/tasks/{id:[0-9]+}", a.handleRequest(handler.GetTask))
+	a.Put("/projects/{id}/tasks/{id:[0-9]+}", a.handleRequest(handler.UpdateTask))
+	a.Delete("/projects/{id}/tasks/{id:[0-9]+}", a.handleRequest(handler.DeleteTask))
+	a.Put("/projects/{id}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.CompleteTask))
+	a.Delete("/projects/{id}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.UndoTask))
 }
 
 // Get wraps the router for GET method

@@ -2,12 +2,13 @@ package handler
 
 import (
 	"encoding/json"
-	"net/http"
-	"strconv"
+	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/lacazethomas/goTodo/app/model"
 )
@@ -19,7 +20,7 @@ func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	status := vars["status"]
 
 	projects := []model.Project{}
-	idUser := r.Context().Value("user").(uint)
+	idUser := r.Context().Value("user").(uuid.UUID)
 	db.Where("user_id = ? AND archived = ?", idUser, status).Find(&projects)
 	respondJSON(w, http.StatusOK, projects)
 
@@ -35,9 +36,17 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	project.UserID = r.Context().Value("user").(uint)
+	project.UserID = r.Context().Value("user").(uuid.UUID)
 
-	err := db.Create(project).Error
+
+	uuid, err := uuid.NewV4()
+	if err != nil {
+		errors.New("Failed to create account, connection error.")
+		return
+	}
+	project.ID = uuid
+
+	err = db.Create(project).Error
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -130,15 +139,20 @@ func RestoreProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 // getProjectOr404 gets a project instance if exists, or respond the 404 error otherwise
 func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Request) *model.Project {
 	project := model.Project{}
-	idUser := r.Context().Value("user").(uint)
-	i, err := strconv.ParseUint(id, 10, 64)
-	if err == nil {
-		fmt.Println(err)
+
+	uniq, err := uuid.FromString(id)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return nil
 	}
-	if err := db.Where("user_id = ?", idUser).First(&project, model.Project{ID: i}).Error; err != nil {
+	fmt.Print(uniq)
+
+	idUser := r.Context().Value("user").(uuid.UUID)
+	project.ID = uniq
+	if err := db.Where("user_id = ?", idUser).First(&project, project).Error; err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil
 	}
-	project.ID = i
+	
 	return &project
 }

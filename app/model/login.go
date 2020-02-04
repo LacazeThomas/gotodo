@@ -3,9 +3,11 @@ package model
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/lacazethomas/goTodo/config"
@@ -15,16 +17,19 @@ import (
 JWT claims struct
 */
 type Token struct {
-	UserId uint
+	UserId uuid.UUID
 	jwt.StandardClaims
 }
 
 //a struct to rep user account
 type Account struct {
-	gorm.Model
-	Email    string `json:"email" gorm:"unique"`
-	Password string `json:"password"`
-	Token    string `json:"token";sql:"-"`
+	AccountID uuid.UUID `gorm:"primary_key;type:varchar(36)"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
+	Email     string     `json:"email" gorm:"unique"`
+	Password  string     `json:"password"`
+	Token     string     `json:"token";sql:"-"`
 }
 
 //Validate incoming user details...
@@ -64,14 +69,18 @@ func (account *Account) Create(db *gorm.DB) (*Account, error) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	account.Password = string(hashedPassword)
 
-	db.Create(account)
-
-	if account.ID <= 0 {
-		return nil, errors.New("Failed to create account, connection error.")
+	uuid, err := uuid.NewV4()
+	if err != nil {
+		errors.New("Failed to create account, connection error.")
+		return nil, nil
 	}
 
+
+	account.AccountID = uuid
+	db.Create(account)
+
 	//Create new JWT token for the newly registered account
-	tk := &Token{UserId: account.ID}
+	tk := &Token{UserId: account.AccountID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(config.GetTokenString()))
 	account.Token = tokenString
@@ -100,7 +109,7 @@ func Login(email, password string, db *gorm.DB) (*Account, error) {
 	account.Password = ""
 
 	//Create JWT token
-	tk := &Token{UserId: account.ID}
+	tk := &Token{UserId: account.AccountID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(config.GetTokenString()))
 	account.Token = tokenString //Store the token in the response

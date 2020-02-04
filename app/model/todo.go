@@ -4,18 +4,19 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Project struct {
-	ID        uint64 `gorm:"primary_key"`
+	ID        uuid.UUID `gorm:"primary_key;type:varchar(36)"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time `sql:"index"`
-	Title    string `json:"title"`
-	Archived bool   `json:"archived"`
-	Tasks    []Task `gorm:"ForeignKey:ProjectID" json:"tasks"`
-	UserID   uint
+	Title     string     `json:"title"`
+	Archived  bool       `json:"archived"`
+	Tasks     []Task     `gorm:"ForeignKey:ProjectID" json:"tasks"`
+	UserID    uuid.UUID
 }
 
 func (p *Project) Archive() {
@@ -27,12 +28,14 @@ func (p *Project) Restore() {
 }
 
 type Task struct {
-	gorm.Model
+	TaskID    uuid.UUID `gorm:"primary_key;type:varchar(36)"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
 	Title     string     `json:"title"`
-	Priority  string     `gorm:"type:ENUM('0', '1', '2', '3');default:'0'" json:"priority"`
 	Deadline  *time.Time `gorm:"default:null" json:"deadline"`
 	Done      bool       `json:"done"`
-	ProjectID uint64     `json:"project_id"`
+	ProjectID uuid.UUID  `json:"project_id"`
 }
 
 func (t *Task) Complete() {
@@ -46,6 +49,6 @@ func (t *Task) Undo() {
 // DBMigrate will create and migrate the tables, and then make the some relationships if necessary
 func DBMigrate(db *gorm.DB) *gorm.DB {
 	db.AutoMigrate(&Project{}, &Task{}, &Account{})
-	db.Model(&Task{}).AddForeignKey("project_id", "projects(id)", "CASCADE", "CASCADE")
+	//db.Model(&Task{}).AddForeignKey("project_id", "projects(id)", "CASCADE", "CASCADE")
 	return db
 }

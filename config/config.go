@@ -3,7 +3,7 @@ package config
 import "os"
 
 type DB struct {
-	Dialect  string `env:"Dialect" envDefault:"mysql"`
+	Dialect  string `env:"Dialect" envDefault:"postgres"`
 	Host     string `env:"Host"`
 	Port     int    `env:"Port" envDefault:"3306"`
 	Username string `env:"Username"`
