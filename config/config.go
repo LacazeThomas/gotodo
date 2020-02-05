@@ -5,7 +5,7 @@ import "os"
 type DB struct {
 	Dialect  string `env:"Dialect" envDefault:"postgres"`
 	Host     string `env:"Host"`
-	Port     int    `env:"Port" envDefault:"3306"`
+	Port     int    `env:"Port" envDefault:"5432"`
 	Username string `env:"Username"`
 	Password string `env:"Password"`
 	Name     string `env:"Name"`

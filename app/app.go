@@ -28,9 +28,8 @@ func (a *App) Initialize(config config.DB) {
 		config.Username,
 		config.Name,
 		config.Password)
-
-	db, err := gorm.Open("postgres", dbURI)
-	/* db, err := gorm.Open(config.Dialect, dbURI) */
+		
+	db, err := gorm.Open(c<onfig.Dialect, dbURI)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
