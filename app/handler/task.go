@@ -58,8 +58,8 @@ func CreateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func GetTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	projectId := vars["title"]
-	project := getProjectOr404(db, projectId, w, r)
+	projectID := vars["title"]
+	project := getProjectOr404(db, projectID, w, r)
 	if project == nil {
 		return
 	}

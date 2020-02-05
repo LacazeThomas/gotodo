@@ -13,15 +13,13 @@ import (
 	"github.com/lacazethomas/goTodo/config"
 )
 
-/*
-JWT claims struct
-*/
+/*Token claims struct*/
 type Token struct {
-	UserId uuid.UUID
+	UserID uuid.UUID
 	jwt.StandardClaims
 }
 
-//a struct to rep user account
+//Account a struct to rep user account
 type Account struct {
 	AccountID uuid.UUID `gorm:"primary_key;type:varchar(36)"`
 	CreatedAt time.Time
@@ -29,7 +27,7 @@ type Account struct {
 	DeletedAt *time.Time `sql:"index"`
 	Email     string     `json:"email" gorm:"unique"`
 	Password  string     `json:"password"`
-	Token     string     `json:"token";sql:"-"`
+	BearerToken     string     `json:"token";sql:"-"`
 }
 
 //Validate incoming user details...
@@ -53,7 +51,7 @@ func (account *Account) Validate(db *gorm.DB) error {
 		return errors.New("Connection error. Please retry")
 	}
 	if temp.Email != "" {
-		return errors.New("Email address already in use by another user.")
+		return errors.New("Email address already in use by another user")
 	}
 
 	return nil
@@ -71,8 +69,7 @@ func (account *Account) Create(db *gorm.DB) (*Account, error) {
 
 	uuid, err := uuid.NewV4()
 	if err != nil {
-		errors.New("Failed to create account, connection error.")
-		return nil, nil
+		return nil, errors.New("Failed to create account, connection error.")
 	}
 
 
@@ -80,10 +77,10 @@ func (account *Account) Create(db *gorm.DB) (*Account, error) {
 	db.Create(account)
 
 	//Create new JWT token for the newly registered account
-	tk := &Token{UserId: account.AccountID}
+	tk := &Token{UserID: account.AccountID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(config.GetTokenString()))
-	account.Token = tokenString
+	account.BearerToken = tokenString
 
 	account.Password = "" //delete password
 
@@ -109,9 +106,9 @@ func Login(email, password string, db *gorm.DB) (*Account, error) {
 	account.Password = ""
 
 	//Create JWT token
-	tk := &Token{UserId: account.AccountID}
+	tk := &Token{UserID: account.AccountID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(config.GetTokenString()))
-	account.Token = tokenString //Store the token in the response
+	account.BearerToken = tokenString //Store the token in the response
 	return account, nil
 }

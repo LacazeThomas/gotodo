@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -21,7 +22,7 @@ type App struct {
 
 // Initialize initializes the app with predefined configuration
 func (a *App) Initialize(config config.DB) {
-	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+	dbURI := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable",
 		config.Host,
 		config.Port,
 		config.Username,

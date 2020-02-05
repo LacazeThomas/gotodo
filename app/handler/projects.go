@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -39,7 +38,7 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	uuid, err := uuid.NewV4()
 	if err != nil {
-		errors.New("Failed to create account, connection error.")
+		respondError(w, http.StatusBadRequest,"Failed to create account, unable to generate UUID.")
 		return
 	}
 	project.ID = uuid
