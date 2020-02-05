@@ -16,13 +16,19 @@ import (
 type App struct {
 	Router *mux.Router
 	DB     *gorm.DB
-	Token     string
+	Token  string
 }
 
 // Initialize initializes the app with predefined configuration
 func (a *App) Initialize(config config.DB) {
+	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		config.Host,
+		config.Port,
+		config.Username,
+		config.Name,
+		config.Password)
 
-	db, err := gorm.Open("postgres", "host='192.168.1.35' port=5432 user=nextcloud dbname='gotodo-dev' password='YOUR_SECRET_PASSWORD' sslmode=disable")
+	db, err := gorm.Open("postgres", dbURI)
 	/* db, err := gorm.Open(config.Dialect, dbURI) */
 	if err != nil {
 		log.Fatal(err.Error())
@@ -32,13 +38,13 @@ func (a *App) Initialize(config config.DB) {
 	a.Router = mux.NewRouter()
 
 	a.Router.Use(handler.JwtAuthentication)
-	
+
 	a.setRouters()
 }
 
 // setRouters sets the all required routers
 func (a *App) setRouters() {
-	
+
 	// Routing for handling the login
 	a.Post("/user/register", a.handleRequest(handler.CreateAccount))
 	a.Post("/user/login", a.handleRequest(handler.Authenticate))
@@ -51,7 +57,7 @@ func (a *App) setRouters() {
 	a.Delete("/project/{id}", a.handleRequest(handler.DeleteProject))
 	a.Put("/project/{id}/archive", a.handleRequest(handler.ArchiveProject))
 	a.Delete("/project/{id}/archive", a.handleRequest(handler.RestoreProject))
- 
+
 	// Routing for handling the tasks
 	a.Get("/projects/{id}/tasks", a.handleRequest(handler.GetAllTasks))
 	a.Post("/projects/{id}/tasks", a.handleRequest(handler.CreateTask))
