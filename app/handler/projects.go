@@ -53,7 +53,6 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	project.ID = uuid
-	fmt.Println(config.GetTokenString(), project.Title)
 	backTittle := project.Title
 	title, err := hash.Encrypt([]byte(config.GetTokenString()), project.Title)
 	if(err != nil){
@@ -96,6 +95,13 @@ func UpdateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+
+	var err error
+	project.Title, err = hash.Encrypt([]byte(config.GetTokenString()), project.Title)
+	if(err != nil){
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	if err := db.Save(&project).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
