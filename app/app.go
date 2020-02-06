@@ -28,7 +28,7 @@ func (a *App) Initialize(config config.DB) {
 		config.Username,
 		config.Name,
 		config.Password)
-		
+	fmt.Print(dbURI)
 	db, err := gorm.Open(config.Dialect, dbURI)
 	if err != nil {
 		log.Fatal(err.Error())
