@@ -2,13 +2,16 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 
+	"github.com/lacazethomas/goTodo/app/hash"
 	"github.com/lacazethomas/goTodo/app/model"
+	"github.com/lacazethomas/goTodo/config"
 )
 
 func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -17,9 +20,17 @@ func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	status := vars["status"]
 
-	projects := []model.Project{}
+	projects := []*model.Project{}
 	idUser := r.Context().Value("user").(uuid.UUID)
 	db.Where("user_id = ? AND archived = ?", idUser, status).Find(&projects)
+	for _, project := range projects{
+		title, err := hash.Decrypt([]byte(config.GetTokenString()), project.Title)
+		if(err != nil){
+			respondError(w, http.StatusBadRequest, err.Error())
+			return 
+		}
+		project.Title = title
+	}
 	respondJSON(w, http.StatusOK, projects)
 
 }
@@ -42,12 +53,20 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	project.ID = uuid
-
+	fmt.Println(config.GetTokenString(), project.Title)
+	backTittle := project.Title
+	title, err := hash.Encrypt([]byte(config.GetTokenString()), project.Title)
+	if(err != nil){
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	project.Title = title
 	err = db.Create(project).Error
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	project.Title = backTittle
 	respondJSON(w, http.StatusCreated, project)
 }
 
@@ -149,5 +168,11 @@ func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Requ
 		return nil
 	}
 
+	title, err := hash.Decrypt([]byte(config.GetTokenString()), project.Title)
+	if(err != nil){
+		respondError(w, http.StatusBadRequest, err.Error())
+		return nil
+	}
+	project.Title = title
 	return &project
 }
