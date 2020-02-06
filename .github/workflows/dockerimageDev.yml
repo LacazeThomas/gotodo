@@ -3,7 +3,7 @@ name: Docker Image CI Master
 on:
   push:
     branches:
-      - master
+      - develop
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build the Docker image
-        run: docker build -t thomaslacaze/gotodoapi:latest . --file Dockerfile
+        run: docker build -t thomaslacaze/gotodoapi:develop . --file Dockerfile
       - name: Docker login
         run: echo '${{ secrets.DOCKER_TOKEN }}' | docker login --username thomaslacaze --password-stdin
       - name: Publish to Docker hub
