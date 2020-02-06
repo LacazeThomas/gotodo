@@ -11,7 +11,7 @@ import (
 	"github.com/lacazethomas/goTodo/app/model"
 )
 
-// GetAllTasks from user 
+// GetAllTasks from user
 func GetAllTasks(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -28,6 +28,7 @@ func GetAllTasks(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	respondJSON(w, http.StatusOK, tasks)
 }
+
 // CreateTask for an user
 func CreateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
