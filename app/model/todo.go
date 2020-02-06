@@ -1,11 +1,15 @@
 package model
 
 import (
+	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	uuid "github.com/satori/go.uuid"
+
+	"github.com/lacazethomas/goTodo/app/hash"
+	"github.com/lacazethomas/goTodo/config"
 )
 
 type Project struct {
@@ -51,4 +55,22 @@ func DBMigrate(db *gorm.DB) *gorm.DB {
 	db.AutoMigrate(&Project{}, &Task{}, &Account{})
 	//db.Model(&Task{}).AddForeignKey("project_id", "projects(id)", "CASCADE", "CASCADE")
 	return db
+}
+
+
+
+func (p *Project)DecryptTitle(){
+	title, err := hash.Decrypt([]byte(config.GetTokenString()), p.Title)
+	if(err != nil){
+		log.Println(err)
+	}
+	p.Title = title
+}
+
+func (p *Project)EncryptTitle(){
+	title, err := hash.Encrypt([]byte(config.GetTokenString()), p.Title)
+	if(err != nil){
+		log.Println(err)
+	}
+	p.Title = title
 }

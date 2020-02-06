@@ -8,9 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/lacazethomas/goTodo/app/hash"
 	"github.com/lacazethomas/goTodo/app/model"
-	"github.com/lacazethomas/goTodo/config"
 )
 
 func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -23,12 +21,7 @@ func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	idUser := r.Context().Value("user").(uuid.UUID)
 	db.Where("user_id = ? AND archived = ?", idUser, status).Find(&projects)
 	for _, project := range projects{
-		title, err := hash.Decrypt([]byte(config.GetTokenString()), project.Title)
-		if(err != nil){
-			respondError(w, http.StatusBadRequest, err.Error())
-			return 
-		}
-		project.Title = title
+		project.DecryptTitle()
 	}
 	respondJSON(w, http.StatusOK, projects)
 
@@ -53,12 +46,7 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	project.ID = uuid
 	backTittle := project.Title
-	title, err := hash.Encrypt([]byte(config.GetTokenString()), project.Title)
-	if(err != nil){
-		respondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	project.Title = title
+	project.EncryptTitle()
 	err = db.Create(project).Error
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
@@ -76,6 +64,7 @@ func GetProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	if project == nil {
 		return
 	}
+	project.DecryptTitle()
 	respondJSON(w, http.StatusOK, project)
 }
 
@@ -84,6 +73,7 @@ func UpdateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	id := vars["uuid"]
 	project := getProjectOr404(db, id, w, r)
+	project.DecryptTitle()
 	if project == nil {
 		return
 	}
@@ -94,18 +84,12 @@ func UpdateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-
-	var err error
-	project.Title, err = hash.Encrypt([]byte(config.GetTokenString()), project.Title)
-	if(err != nil){
-		respondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
+	project.EncryptTitle()
 	if err := db.Save(&project).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	project.DecryptTitle()
 	respondJSON(w, http.StatusOK, project)
 }
 
@@ -121,6 +105,7 @@ func DeleteProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	project.DecryptTitle()
 	respondJSON(w, http.StatusNoContent, nil)
 }
 
@@ -137,6 +122,7 @@ func ArchiveProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	project.DecryptTitle()
 	respondJSON(w, http.StatusOK, project)
 }
 
@@ -153,6 +139,7 @@ func RestoreProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	project.DecryptTitle()
 	respondJSON(w, http.StatusOK, project)
 }
 
@@ -172,12 +159,5 @@ func getProjectOr404(db *gorm.DB, id string, w http.ResponseWriter, r *http.Requ
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil
 	}
-
-	title, err := hash.Decrypt([]byte(config.GetTokenString()), project.Title)
-	if(err != nil){
-		respondError(w, http.StatusBadRequest, err.Error())
-		return nil
-	}
-	project.Title = title
 	return &project
 }
