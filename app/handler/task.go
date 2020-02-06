@@ -64,7 +64,7 @@ func GetTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := strconv.Atoi(vars["uuid"])
+	id, _ := strconv.Atoi(vars["id"])
 	task := getTaskOr404(db, id, w, r)
 	if task == nil {
 		return
@@ -81,7 +81,7 @@ func UpdateTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := strconv.Atoi(vars["uuid"])
+	id, _ := strconv.Atoi(vars["id"])
 	task := getTaskOr404(db, id, w, r)
 	if task == nil {
 		return
@@ -111,7 +111,7 @@ func DeleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := strconv.Atoi(vars["uuid"])
+	id, _ := strconv.Atoi(vars["id"])
 	task := getTaskOr404(db, id, w, r)
 	if task == nil {
 		return
@@ -134,7 +134,7 @@ func CompleteTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := strconv.Atoi(vars["uuid"])
+	id, _ := strconv.Atoi(vars["id"])
 	task := getTaskOr404(db, id, w, r)
 	if task == nil {
 		return
@@ -158,7 +158,7 @@ func UndoTask(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := strconv.Atoi(vars["uuid"])
+	id, _ := strconv.Atoi(vars["id"])
 	task := getTaskOr404(db, id, w, r)
 	if task == nil {
 		return
