@@ -58,13 +58,13 @@ func (a *App) setRouters() {
 	a.Delete("/project/{uuid}/archive", a.handleRequest(handler.RestoreProject))
 
 	// Routing for handling the tasks
-	a.Get("/projects/{uuid}/tasks", a.handleRequest(handler.GetAllTasks))
-	a.Post("/projects/{uuid}/tasks", a.handleRequest(handler.CreateTask))
-	a.Get("/projects/{uuid}/tasks/{id:[0-9]+}", a.handleRequest(handler.GetTask))
-	a.Put("/projects/{uuid}/tasks/{id:[0-9]+}", a.handleRequest(handler.UpdateTask))
-	a.Delete("/projects/{uuid}/tasks/{id:[0-9]+}", a.handleRequest(handler.DeleteTask))
-	a.Put("/projects/{uuid}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.CompleteTask))
-	a.Delete("/projects/{uuid}/tasks/{id:[0-9]+}/complete", a.handleRequest(handler.UndoTask))
+	a.Get("/project/{uuid}/tasks/{status:[0-1]}", a.handleRequest(handler.GetAllTasks))
+	a.Post("/project/{uuid}/task", a.handleRequest(handler.CreateTask))
+	a.Get("/project/{uuid}/task/{uuidTask}", a.handleRequest(handler.GetTask))
+	a.Put("/project/{uuid}/task/{uuidTask}", a.handleRequest(handler.UpdateTask))
+	a.Delete("/project/{uuid}/task/{uuidTask}", a.handleRequest(handler.DeleteTask))
+	a.Put("/project/{uuid}/task/{uuidTask}/complete", a.handleRequest(handler.CompleteTask))
+	a.Delete("/project/{uuid}/task/{uuidTask}/complete", a.handleRequest(handler.UndoTask))
 }
 
 // Get wraps the router for GET method

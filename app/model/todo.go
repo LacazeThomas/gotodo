@@ -68,3 +68,16 @@ func (p *Project) EncryptTitle() {
 	error.CheckErr(err)
 	p.Title = title
 }
+
+
+func (t *Task) DecryptTask() {
+	title, err := hash.Decrypt([]byte(config.GetTokenString()), t.Title)
+	error.CheckErr(err)
+	t.Title = title
+}
+
+func (t *Task) EncryptTask() {
+	title, err := hash.Encrypt([]byte(config.GetTokenString()), t.Title)
+	error.CheckErr(err)
+	t.Title = title
+}
