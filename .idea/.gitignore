@@ -1,0 +1,10 @@
+# Default ignored files
+goTodo
+air
+.air.conf
+tmp/build-errors.log
+tmp/main
+misc.xml
+modules.xml
+vcs.xml
+workspace.xml
