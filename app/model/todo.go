@@ -1,7 +1,6 @@
 package model
 
 import (
-	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/lacazethomas/goTodo/app/hash"
 	"github.com/lacazethomas/goTodo/config"
+	"github.com/lacazethomas/gotodo/error"
 )
 
 type Project struct {
@@ -59,16 +59,12 @@ func DBMigrate(db *gorm.DB) *gorm.DB {
 
 func (p *Project) DecryptTitle() {
 	title, err := hash.Decrypt([]byte(config.GetTokenString()), p.Title)
-	if err != nil {
-		log.Println(err)
-	}
+	error.CheckErr(err)
 	p.Title = title
 }
 
 func (p *Project) EncryptTitle() {
 	title, err := hash.Encrypt([]byte(config.GetTokenString()), p.Title)
-	if err != nil {
-		log.Println(err)
-	}
+	error.CheckErr(err)
 	p.Title = title
 }

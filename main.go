@@ -18,6 +18,7 @@ func main() {
 	if err != nil {
 		log.Println("Can not get env variable")
 	}
+
 	router := &app.App{}
 	router.Initialize(cfg)
 	router.Run(":8000")

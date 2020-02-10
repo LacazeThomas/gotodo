@@ -11,6 +11,7 @@ import (
 	"github.com/lacazethomas/goTodo/app/handler"
 	"github.com/lacazethomas/goTodo/app/model"
 	"github.com/lacazethomas/goTodo/config"
+	"github.com/lacazethomas/gotodo/error"
 )
 
 // App has router and db instances
@@ -30,9 +31,7 @@ func (a *App) Initialize(config config.DB) {
 		config.Password)
 
 	db, err := gorm.Open(config.Dialect, dbURI)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	error.CheckErr(err)
 
 	a.DB = model.DBMigrate(db)
 	a.Router = mux.NewRouter()

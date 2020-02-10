@@ -18,7 +18,7 @@ func CreateAccount(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp,err := account.Create(db) //Create account
+	resp, err := account.Create(db) //Create account
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -35,12 +35,12 @@ func Authenticate(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp,err := model.Login(account.Email, account.Password,db)
+	resp, err := model.Login(account.Email, account.Password, db)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	type login struct {
 		Token string `json:"token"`
 	}
