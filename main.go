@@ -8,17 +8,17 @@ import (
 	"github.com/lacazethomas/goTodo/config"
 )
 
-
-//TODO: Better file organization
+//TODO:
+//Better file organization
 func main() {
-
 	log.SetFormatter(&log.JSONFormatter{})
-	config := config.DB{}
-	err := env.Parse(&config)
+
+	cfg := config.DB{}
+	err := env.Parse(&cfg)
 	if err != nil {
 		log.Println("Can not get env variable")
 	}
-	app := &app.App{}
-	app.Initialize(config)
-	app.Run(":8000")
+	router := &app.App{}
+	router.Initialize(cfg)
+	router.Run(":8000")
 }

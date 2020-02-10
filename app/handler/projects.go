@@ -17,10 +17,10 @@ func GetAllProjects(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	status := vars["status"]
 
-	projects := []*model.Project{}
+	var projects []*model.Project
 	idUser := r.Context().Value("user").(uuid.UUID)
 	db.Where("user_id = ? AND archived = ?", idUser, status).Find(&projects)
-	for _, project := range projects{
+	for _, project := range projects {
 		project.DecryptTitle()
 	}
 	respondJSON(w, http.StatusOK, projects)
@@ -39,12 +39,12 @@ func CreateProject(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	project.UserID = r.Context().Value("user").(uuid.UUID)
 
-	uuid, err := uuid.NewV4()
+	userUuid, err := uuid.NewV4()
 	if err != nil {
-		respondError(w, http.StatusBadRequest,"Failed to create account, unable to generate UUID.")
+		respondError(w, http.StatusBadRequest, "Failed to create account, unable to generate UUID.")
 		return
 	}
-	project.ID = uuid
+	project.ID = userUuid
 	backTittle := project.Title
 	project.EncryptTitle()
 	err = db.Create(project).Error

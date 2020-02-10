@@ -21,25 +21,25 @@ type Token struct {
 
 //Account a struct to rep user account
 type Account struct {
-	AccountID uuid.UUID `gorm:"primary_key;type:varchar(36)"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time `sql:"index"`
-	Email     string     `json:"email" gorm:"unique"`
-	Password  string     `json:"password"`
-	BearerToken     string     `json:"token";sql:"-"`
+	AccountID   uuid.UUID `gorm:"primary_key;type:varchar(36)"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time `sql:"index"`
+	Email       string     `json:"email" gorm:"unique"`
+	Password    string     `json:"password"`
+	BearerToken string     `json:"token";sql:"-"`
 }
 
 //Validate incoming user details...
 func (account *Account) Validate(db *gorm.DB) error {
 
 	if !strings.Contains(account.Email, "@") {
-		return errors.New("Email address is required")
+		return errors.New("email address is required")
 
 	}
 
 	if len(account.Password) < 6 {
-		return errors.New("Password to short 6 characteres min")
+		return errors.New("password must be at least 7 characters long")
 	}
 
 	//Email must be unique
@@ -48,10 +48,10 @@ func (account *Account) Validate(db *gorm.DB) error {
 	//check for errors and duplicate emails
 	err := db.Table("accounts").Where("email = ?", account.Email).First(temp).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return errors.New("Connection error. Please retry")
+		return errors.New("connection error, please retry")
 	}
 	if temp.Email != "" {
-		return errors.New("Email address already in use by another user")
+		return errors.New("email address already in use by another user")
 	}
 
 	return nil
@@ -67,13 +67,11 @@ func (account *Account) Create(db *gorm.DB) (*Account, error) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	account.Password = string(hashedPassword)
 
-	uuid, err := uuid.NewV4()
+	userUuid, err := uuid.NewV4()
 	if err != nil {
-		return nil, errors.New("Failed to create account, connection error.")
+		return nil, errors.New("failed to create account, connection error")
 	}
-
-
-	account.AccountID = uuid
+	account.AccountID = userUuid
 	db.Create(account)
 
 	//Create new JWT token for the newly registered account
@@ -93,14 +91,14 @@ func Login(email, password string, db *gorm.DB) (*Account, error) {
 	err := db.Table("accounts").Where("email = ?", email).First(account).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("Email address not found")
+			return nil, errors.New("email address not found")
 		}
-		return nil, errors.New("Connection error. Please retry")
+		return nil, errors.New("connection error, please retry")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword { //Password does not match!
-		return nil, errors.New("Invalid login credentials. Please try again")
+		return nil, errors.New("invalid login credentials, please try again")
 	}
 	//Worked! Logged In
 	account.Password = ""

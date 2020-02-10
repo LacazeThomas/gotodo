@@ -57,19 +57,17 @@ func DBMigrate(db *gorm.DB) *gorm.DB {
 	return db
 }
 
-
-
-func (p *Project)DecryptTitle(){
+func (p *Project) DecryptTitle() {
 	title, err := hash.Decrypt([]byte(config.GetTokenString()), p.Title)
-	if(err != nil){
+	if err != nil {
 		log.Println(err)
 	}
 	p.Title = title
 }
 
-func (p *Project)EncryptTitle(){
+func (p *Project) EncryptTitle() {
 	title, err := hash.Encrypt([]byte(config.GetTokenString()), p.Title)
-	if(err != nil){
+	if err != nil {
 		log.Println(err)
 	}
 	p.Title = title

@@ -58,5 +58,5 @@ func Decrypt(key []byte, cryptoText string) (string, error) {
 	stream.XORKeyStream(ciphertext, ciphertext)
 
 	return fmt.Sprintf("%s", ciphertext), nil
-	
+
 }
