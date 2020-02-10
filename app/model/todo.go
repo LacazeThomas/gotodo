@@ -9,7 +9,7 @@ import (
 
 	"github.com/lacazethomas/goTodo/app/hash"
 	"github.com/lacazethomas/goTodo/config"
-	"github.com/lacazethomas/gotodo/error"
+	"github.com/lacazethomas/goTodo/error"
 )
 
 type Project struct {

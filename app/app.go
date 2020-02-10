@@ -11,7 +11,7 @@ import (
 	"github.com/lacazethomas/goTodo/app/handler"
 	"github.com/lacazethomas/goTodo/app/model"
 	"github.com/lacazethomas/goTodo/config"
-	"github.com/lacazethomas/gotodo/error"
+	"github.com/lacazethomas/goTodo/error"
 )
 
 // App has router and db instances
